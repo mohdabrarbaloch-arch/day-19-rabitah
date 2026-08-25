@@ -1,0 +1,31 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: rabitah
+      POSTGRES_PASSWORD: rabitah
+      POSTGRES_DB: rabitah
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rabitah"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+
+  app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql+psycopg2://rabitah:rabitah@db:5432/rabitah
+      SECRET_KEY: change-me-in-compose-9f8a7b6c5d4e3f2a
+      CORS_ORIGINS: "*"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+volumes:
+  pgdata:
