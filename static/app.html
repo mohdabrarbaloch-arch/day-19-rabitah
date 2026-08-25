@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rabitah — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:#0b0d12; --bg2:#12151d; --card:#181c26; --line:#262b38;
+      --text:#f2f4f8; --muted:#9aa3b2; --accent:#7c5cff; --accent2:#ff9f43;
+      --ok:#2dd4a7; --bad:#ff5d6c; --radius:14px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+    h1,h2,h3,.brand { font-family:'Space Grotesk',sans-serif; }
+    header { display:flex; align-items:center; justify-content:space-between; padding:16px 22px; border-bottom:1px solid var(--line); background:var(--bg); position:sticky; top:0; z-index:50; }
+    .brand { font-size:20px; font-weight:700; } .brand span { color:var(--accent); }
+    .user-chip { display:flex; align-items:center; gap:10px; font-size:13px; color:var(--muted); }
+    .user-chip b { color:var(--text); font-weight:600; }
+    .logout { background:none; border:1px solid var(--line); color:var(--muted); padding:7px 14px; border-radius:10px; cursor:pointer; font-size:13px; }
+    .logout:hover { color:var(--bad); border-color:var(--bad); }
+    .layout { display:grid; grid-template-columns:240px 1fr; min-height:calc(100vh - 60px); }
+    aside { border-right:1px solid var(--line); padding:22px 14px; background:var(--bg2); }
+    .nav-item { display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:12px; cursor:pointer; color:var(--muted); font-size:14px; font-weight:500; margin-bottom:6px; transition:.15s; }
+    .nav-item:hover { background:var(--card); color:var(--text); }
+    .nav-item.active { background:linear-gradient(135deg,rgba(124,92,255,.18),transparent); color:var(--text); border:1px solid rgba(124,92,255,.35); }
+    .nav-item .ic { font-size:17px; }
+    main { padding:28px 32px; max-width:860px; }
+    main h1 { font-size:26px; margin-bottom:4px; }
+    .page-sub { color:var(--muted); font-size:14px; margin-bottom:26px; }
+    .page-url { color:var(--accent); font-weight:600; }
+    .stat-row { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:26px; }
+    .stat-card { background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px; }
+    .stat-card b { display:block; font-family:'Space Grotesk'; font-size:26px; }
+    .stat-card span { color:var(--muted); font-size:12px; }
+    .panel { background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:22px; margin-bottom:20px; }
+    .panel h3 { font-size:16px; margin-bottom:14px; }
+    .link-row { display:flex; align-items:center; gap:14px; padding:13px 16px; background:var(--bg2); border:1px solid var(--line); border-radius:12px; margin-bottom:10px; }
+    .link-row .title { font-weight:600; font-size:14px; flex:1; }
+    .link-row .url { color:var(--muted); font-size:12px; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .link-row .clicks { font-size:12px; color:var(--muted); background:var(--card); padding:4px 10px; border-radius:20px; white-space:nowrap; }
+    .icon-btn { background:none; border:none; cursor:pointer; font-size:15px; padding:4px; border-radius:8px; }
+    .icon-btn:hover { background:var(--line); }
+    .icon-btn.del:hover { color:var(--bad); }
+    .badge { font-size:11px; padding:3px 9px; border-radius:20px; font-weight:600; }
+    .badge.on { background:rgba(45,212,167,.15); color:var(--ok); }
+    .badge.off { background:rgba(255,93,108,.15); color:var(--bad); }
+    .field { margin-bottom:14px; }
+    .field label { display:block; font-size:12px; font-weight:600; color:var(--muted); margin-bottom:6px; }
+    .field input, .field select, .field textarea { width:100%; background:var(--bg2); border:1px solid var(--line); border-radius:10px; padding:11px 14px; color:var(--text); font-size:14px; font-family:inherit; }
+    .field input:focus, .field select:focus, .field textarea:focus { outline:none; border-color:var(--accent); }
+    .row2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .btn { display:inline-block; padding:10px 20px; border-radius:11px; font-weight:600; font-size:14px; cursor:pointer; border:1px solid var(--line); background:transparent; color:var(--text); transition:.2s; }
+    .btn:hover { border-color:var(--accent); }
+    .btn-primary { background:linear-gradient(135deg,var(--accent),#5a3dff); border:none; box-shadow:0 6px 20px rgba(124,92,255,.3); }
+    .btn-sm { padding:6px 12px; font-size:12px; }
+    .btn-danger { border-color:rgba(255,93,108,.4); color:var(--bad); }
+    .btn-danger:hover { background:rgba(255,93,108,.1); }
+    .error { background:rgba(255,93,108,.12); border:1px solid rgba(255,93,108,.35); color:var(--bad); padding:11px 14px; border-radius:10px; font-size:13px; margin-bottom:14px; display:none; }
+    .ok { background:rgba(45,212,167,.12); border:1px solid rgba(45,212,167,.35); color:var(--ok); padding:11px 14px; border-radius:10px; font-size:13px; margin-bottom:14px; display:none; }
+    .auth-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
+    .auth-card { width:100%; max-width:400px; background:var(--card); border:1px solid var(--line); border-radius:20px; padding:34px; }
+    .auth-card h1 { font-size:24px; margin-bottom:6px; }
+    .auth-card .sub { color:var(--muted); font-size:13px; margin-bottom:24px; }
+    .tabs { display:flex; gap:8px; margin-bottom:22px; background:var(--bg2); padding:5px; border-radius:12px; }
+    .tab { flex:1; text-align:center; padding:9px; border-radius:9px; cursor:pointer; font-size:13px; font-weight:600; color:var(--muted); }
+    .tab.active { background:var(--accent); color:#fff; }
+    .auth-link { text-align:center; font-size:12px; color:var(--muted); margin-top:16px; }
+    .auth-link a { color:var(--accent); text-decoration:none; }
+    .bars { display:flex; align-items:flex-end; gap:6px; height:140px; padding-top:10px; }
+    .bar-col { flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; }
+    .bar { width:100%; max-width:34px; background:linear-gradient(180deg,var(--accent),#5a3dff); border-radius:6px 6px 2px 2px; min-height:3px; transition:.3s; }
+    .bar.zero { background:var(--line); }
+    .bar-label { font-size:9px; color:var(--muted); transform:rotate(-40deg); white-space:nowrap; }
+    .hidden { display:none !important; }
+    .empty { text-align:center; color:var(--muted); padding:30px 0; font-size:14px; }
+    @media (max-width:760px) {
+      .layout { grid-template-columns:1fr; }
+      aside { display:flex; gap:6px; border-right:none; border-bottom:1px solid var(--line); padding:10px; overflow-x:auto; }
+      .nav-item { margin-bottom:0; white-space:nowrap; }
+      main { padding:20px 16px; }
+      .stat-row { grid-template-columns:1fr 1fr; }
+      .row2 { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="auth-view" class="auth-wrap hidden">
+    <div class="auth-card">
+      <h1>rabitah<span style="color:var(--accent)">.</span></h1>
+      <p class="sub">Your links, one smart page.</p>
+      <div class="tabs">
+        <div class="tab active" data-tab="login">Log in</div>
+        <div class="tab" data-tab="register">Sign up</div>
+      </div>
+      <div class="error" id="auth-error"></div>
+      <form id="login-form">
+        <div class="field"><label>Email</label><input type="email" id="login-email" required placeholder="you@example.com" /></div>
+        <div class="field"><label>Password</label><input type="password" id="login-pass" required placeholder="••••••••" /></div>
+        <button class="btn btn-primary" style="width:100%" type="submit">Log in</button>
+      </form>
+      <form id="register-form" class="hidden">
+        <div class="field"><label>Email</label><input type="email" id="reg-email" required placeholder="you@example.com" /></div>
+        <div class="field"><label>Username</label><input type="text" id="reg-user" required pattern="[a-z0-9_]{3,30}" placeholder="yourname (lowercase, no spaces)" /></div>
+        <div class="field"><label>Password (min 8 chars, one number)</label><input type="password" id="reg-pass" required placeholder="••••••••" /></div>
+        <button class="btn btn-primary" style="width:100%" type="submit">Create my page →</button>
+      </form>
+      <p class="auth-link">Demo: <a href="#" id="demo-login">log in instantly</a></p>
+    </div>
+  </div>
+  <div id="app-view" class="hidden">
+    <header>
+      <div class="brand">rabitah<span>.</span></div>
+      <div class="user-chip"><b id="chip-name">—</b><button class="logout" id="logout-btn">Log out</button></div>
+    </header>
+    <div class="layout">
+      <aside>
+        <div class="nav-item active" data-view="editor"><span class="ic">🔗</span> My Links</div>
+        <div class="nav-item" data-view="analytics"><span class="ic">📊</span> Analytics</div>
+        <div class="nav-item" data-view="settings"><span class="ic">🎨</span> Page Settings</div>
+        <div class="nav-item" id="view-page"><span class="ic">👁️</span> View my page</div>
+      </aside>
+      <main>
+        <div id="view-editor">
+          <h1>My Links</h1>
+          <p class="page-sub">Your public page lives at <span class="page-url" id="my-url">—</span>. Share it everywhere.</p>
+          <div class="ok" id="link-ok"></div>
+          <div class="error" id="link-error"></div>
+          <div class="panel">
+            <h3>Add a link</h3>
+            <form id="link-form">
+              <div class="field"><label>Title</label><input type="text" id="link-title" required maxlength="200" placeholder="My Fiverr Gig" /></div>
+              <div class="field"><label>URL</label><input type="url" id="link-url" required placeholder="https://..." /></div>
+              <div class="row2">
+                <div class="field"><label>Icon</label>
+                  <select id="link-icon">
+                    <option value="link">🔗 Link</option>
+                    <option value="github">🐙 GitHub</option>
+                    <option value="youtube">▶️ YouTube</option>
+                    <option value="instagram">📸 Instagram</option>
+                    <option value="tiktok">🎵 TikTok</option>
+                    <option value="briefcase">💼 Fiverr/Work</option>
+                    <option value="video">🎬 Video</option>
+                    <option value="calendar">📅 Book a call</option>
+                    <option value="mail">✉️ Email</option>
+                    <option value="whatsapp">💬 WhatsApp</option>
+                  </select>
+                </div>
+                <div class="field"><label>Order</label><input type="number" id="link-order" value="0" min="0" /></div>
+              </div>
+              <button class="btn btn-primary btn-sm" type="submit">+ Add link</button>
+            </form>
+          </div>
+          <div id="links-list"></div>
+        </div>
+        <div id="view-analytics" class="hidden">
+          <h1>Analytics</h1>
+          <p class="page-sub">How your links performed over the last 14 days.</p>
+          <div class="stat-row">
+            <div class="stat-card"><b id="stat-total">0</b><span>Total clicks</span></div>
+            <div class="stat-card"><b id="stat-links">0</b><span>Links</span></div>
+            <div class="stat-card"><b id="stat-today">0</b><span>Clicks today</span></div>
+          </div>
+          <div class="panel">
+            <h3>Daily clicks</h3>
+            <div class="bars" id="chart"></div>
+          </div>
+          <div class="panel">
+            <h3>Top links</h3>
+            <div id="top-links"></div>
+          </div>
+        </div>
+        <div id="view-settings" class="hidden">
+          <h1>Page Settings</h1>
+          <p class="page-sub">Make the page yours.</p>
+          <div class="ok" id="settings-ok"></div>
+          <div class="error" id="settings-error"></div>
+          <form id="settings-form">
+            <div class="field"><label>Display name</label><input type="text" id="set-name" maxlength="120" /></div>
+            <div class="field"><label>Bio</label><textarea id="set-bio" rows="3" maxlength="500" placeholder="One line about you"></textarea></div>
+            <div class="field"><label>Avatar URL</label><input type="url" id="set-avatar" placeholder="https://..." /></div>
+            <div class="field"><label>Theme</label>
+              <select id="set-theme">
+                <option value="midnight">🌙 Midnight</option>
+                <option value="sunset">🌅 Sunset</option>
+                <option value="forest">🌲 Forest</option>
+                <option value="ocean">🌊 Ocean</option>
+                <option value="mono">⚪ Mono</option>
+              </select>
+            </div>
+            <button class="btn btn-primary btn-sm" type="submit">Save changes</button>
+          </form>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
