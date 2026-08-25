@@ -15,6 +15,8 @@ from app.services.qr import qr_png
 
 router = APIRouter(tags=["public"])
 
+RESERVED = {"app", "static", "api", "docs", "redoc", "qr", "go"}
+
 
 @router.get("/api/page/{username}", response_model=PublicPage)
 def get_public_page_json(username: str, db: Session = Depends(get_db)):
@@ -27,7 +29,10 @@ def get_public_page(username: str, db: Session = Depends(get_db)):
 
 
 def _build_page(username: str, db: Session) -> PublicPage:
-    user = db.query(User).filter(User.username == username.lower()).first()
+    username = username.lower().strip("/")
+    if username in RESERVED:
+        raise HTTPException(status_code=404, detail="Page not found")
+    user = db.query(User).filter(User.username == username).first()
     if user is None or not user.is_active:
         raise HTTPException(status_code=404, detail="Page not found")
     links = [link for link in user.links if link.is_active]

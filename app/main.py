@@ -47,7 +47,6 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(links.router)
-app.include_router(page.router)
 app.include_router(analytics.router)
 
 
@@ -73,3 +72,6 @@ def spa_fallback(rest: str):
 
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+# Page router LAST so the /{username} catch-all never shadows /app, /api, /docs.
+app.include_router(page.router)
